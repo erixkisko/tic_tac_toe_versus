@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router";
 
 interface GameState {
@@ -21,40 +21,42 @@ const GameRoom: React.FC = () => {
   const [guestName, setGuestName] = useState("");
   const [showGuestForm, setShowGuestForm] = useState(false);
 
-  useEffect(() => {
-    if (!sessionId) {
-      navigate("/");
-      return;
-    }
-
-    loadGameState();
-
-    // Poll for game state updates every second
-    const interval = setInterval(loadGameState, 1000);
-    return () => clearInterval(interval);
-  }, [sessionId]);
-
-  const loadGameState = () => {
+  const loadGameState = useCallback(() => {
     if (!sessionId) return;
 
-    const gameData = sessionStorage.getItem(`game_${sessionId}`);
+    const gameData = localStorage.getItem(`game_${sessionId}`);
     if (!gameData) {
-      navigate("/");
+      void navigate("/");
       return;
     }
 
-    const game = JSON.parse(gameData);
+    const game = JSON.parse(gameData) as GameState;
     setGameState(game);
 
     // Check if guest player needs to enter name
     if (playerType === "guest" && !game.guest) {
       setShowGuestForm(true);
     }
-  };
+  }, [navigate, playerType, sessionId]);
+
+  useEffect(() => {
+    if (!sessionId) {
+      void navigate("/");
+      return;
+    }
+
+    void loadGameState();
+
+    // Poll for game state updates every second
+    const interval = setInterval(() => {
+      void loadGameState();
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [sessionId, navigate, loadGameState]);
 
   const updateGameState = (newState: GameState) => {
     if (!sessionId) return;
-    sessionStorage.setItem(`game_${sessionId}`, JSON.stringify(newState));
+    localStorage.setItem(`game_${sessionId}`, JSON.stringify(newState));
     setGameState(newState);
   };
 
@@ -118,7 +120,7 @@ const GameRoom: React.FC = () => {
 
     updateGameState({
       ...gameState,
-      board: Array(9).fill(null),
+      board: Array(9).fill(null) as (string | null)[],
       currentPlayer: "X",
       winner: null,
     });
@@ -134,13 +136,13 @@ const GameRoom: React.FC = () => {
       gameStarted: true,
     };
 
-    updateGameState(updatedGame);
+    void updateGameState(updatedGame);
     setShowGuestForm(false);
   };
 
   const copyInviteLink = () => {
     const link = `${window.location.origin}/game/${sessionId}?player=guest`;
-    navigator.clipboard.writeText(link);
+    void navigator.clipboard.writeText(link);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -154,7 +156,11 @@ const GameRoom: React.FC = () => {
           You're about to join <strong>{gameState?.host}</strong>'s game!
         </p>
 
-        <form onSubmit={handleGuestJoin}>
+        <form
+          onSubmit={(e) => {
+            handleGuestJoin(e);
+          }}
+        >
           <div className="input-group">
             <label htmlFor="guestName">Your Name</label>
             <input
@@ -175,9 +181,12 @@ const GameRoom: React.FC = () => {
 
         <div style={{ marginTop: "30px" }}>
           <button
-            onClick={() => navigate("/")}
+            onClick={() => {
+              void navigate("/");
+            }}
             className="button secondary"
             style={{ background: "#6c757d" }}
+            type="button"
           >
             ← Back to Home
           </button>
@@ -276,13 +285,17 @@ const GameRoom: React.FC = () => {
           </div>
 
           <div className="game-board">
-            {gameState.board.map((cell, index) => (
+            {gameState.board.map((cell, idx) => (
               <div
-                key={index}
+                key={`cell-${sessionId}-${idx}-${cell ?? "empty"}-${btoa(
+                  gameState.board.join("|")
+                )}`}
                 className={`game-cell ${cell ? cell.toLowerCase() : ""} ${
                   !gameState.gameStarted || gameState.winner ? "disabled" : ""
                 }`}
-                onClick={() => handleCellClick(index)}
+                onClick={() => {
+                  handleCellClick(idx);
+                }}
               >
                 {cell}
               </div>
@@ -290,7 +303,13 @@ const GameRoom: React.FC = () => {
           </div>
 
           {gameState.winner && (
-            <button onClick={resetGame} className="button">
+            <button
+              onClick={() => {
+                void resetGame();
+              }}
+              className="button"
+              type="button"
+            >
               Play Again
             </button>
           )}
@@ -299,9 +318,12 @@ const GameRoom: React.FC = () => {
 
       <div style={{ marginTop: "30px" }}>
         <button
-          onClick={() => navigate("/")}
+          onClick={() => {
+            void navigate("/");
+          }}
           className="button secondary"
           style={{ background: "#6c757d" }}
+          type="button"
         >
           ← Leave Game
         </button>

@@ -14,7 +14,7 @@ const CreateGame = () => {
     if (playerName.trim()) {
       const sessionId = generateSessionId();
       // Store player info in sessionStorage for now
-      sessionStorage.setItem(
+      localStorage.setItem(
         `game_${sessionId}`,
         JSON.stringify({
           host: playerName.trim(),
@@ -26,7 +26,7 @@ const CreateGame = () => {
         })
       );
 
-      navigate(`/game/${sessionId}?player=host`);
+      void navigate(`/game/${sessionId}?player=host`);
     }
   };
 
@@ -54,9 +54,12 @@ const CreateGame = () => {
 
       <div style={{ marginTop: "30px" }}>
         <button
-          onClick={() => navigate("/")}
+          onClick={() => {
+            void navigate("/");
+          }}
           className="button secondary"
           style={{ background: "#6c757d" }}
+          type="button"
         >
           ← Back to Home
         </button>

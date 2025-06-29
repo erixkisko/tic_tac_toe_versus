@@ -16,13 +16,16 @@ const JoinGame = () => {
       return;
     }
 
-    const gameData = sessionStorage.getItem(`game_${sessionId.toUpperCase()}`);
+    const gameData = localStorage.getItem(`game_${sessionId.toUpperCase()}`);
     if (!gameData) {
       setError("Game not found. Please check the game ID.");
       return;
     }
 
-    const game = JSON.parse(gameData);
+    const game = JSON.parse(gameData) as {
+      guest: string | null;
+      gameStarted: boolean;
+    };
     if (game.guest) {
       setError("This game is already full.");
       return;
@@ -31,19 +34,23 @@ const JoinGame = () => {
     // Add guest player to the game
     game.guest = playerName.trim();
     game.gameStarted = true;
-    sessionStorage.setItem(
+    localStorage.setItem(
       `game_${sessionId.toUpperCase()}`,
       JSON.stringify(game)
     );
 
-    navigate(`/game/${sessionId.toUpperCase()}?player=guest`);
+    void navigate(`/game/${sessionId.toUpperCase()}?player=guest`);
   };
 
   return (
     <div className="page-container">
       <h2 className="page-title">Join Game</h2>
 
-      <form onSubmit={handleJoinGame}>
+      <form
+        onSubmit={(e) => {
+          handleJoinGame(e);
+        }}
+      >
         <div className="input-group">
           <label htmlFor="playerName">Your Name</label>
           <input
@@ -90,9 +97,12 @@ const JoinGame = () => {
 
       <div style={{ marginTop: "30px" }}>
         <button
-          onClick={() => navigate("/")}
+          onClick={() => {
+            void navigate("/");
+          }}
           className="button secondary"
           style={{ background: "#6c757d" }}
+          type="button"
         >
           ← Back to Home
         </button>
