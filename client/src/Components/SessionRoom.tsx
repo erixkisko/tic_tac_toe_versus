@@ -363,7 +363,7 @@ const SessionRoom = () => {
 
       <div style={{ textAlign: "center" }}>
         <button
-          onClick={handleResetGame}
+          onClick={() => void handleResetGame()}
           className="button"
           style={{ marginRight: "10px" }}
         >
