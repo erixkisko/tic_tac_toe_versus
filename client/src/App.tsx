@@ -1,11 +1,11 @@
 import { BrowserRouter, Route, Routes } from "react-router";
 import "./App.css";
 import CreateGame from "./Components/CreateGame";
-import GameRoom from "./Components/GameRoom";
 import HomePage from "./Components/HomePage";
 import JoinGame from "./Components/JoinGame";
+import SessionRoom from "./Components/SessionRoom";
 
-function App() {
+const App = () => {
   return (
     <BrowserRouter>
       <div className="app">
@@ -17,12 +17,12 @@ function App() {
             <Route path="/" element={<HomePage />} />
             <Route path="/create" element={<CreateGame />} />
             <Route path="/join" element={<JoinGame />} />
-            <Route path="/game/:sessionId" element={<GameRoom />} />
+            <Route path="/session/:sessionId" element={<SessionRoom />} />
           </Routes>
         </main>
       </div>
     </BrowserRouter>
   );
-}
+};
 
 export default App;

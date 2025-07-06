@@ -5,9 +5,10 @@ const JoinGame = () => {
   const [playerName, setPlayerName] = useState("");
   const [sessionId, setSessionId] = useState("");
   const [error, setError] = useState("");
+  const [isJoining, setIsJoining] = useState(false);
   const navigate = useNavigate();
 
-  const handleJoinGame = (e: React.FormEvent) => {
+  const handleJoinGame = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
 
@@ -16,30 +17,44 @@ const JoinGame = () => {
       return;
     }
 
-    const gameData = localStorage.getItem(`game_${sessionId.toUpperCase()}`);
-    if (!gameData) {
-      setError("Game not found. Please check the game ID.");
-      return;
+    setIsJoining(true);
+
+    try {
+      // First check if session exists
+      const checkResponse = await fetch(
+        `http://localhost:5001/api/sessions/${sessionId.trim()}`
+      );
+
+      if (!checkResponse.ok) {
+        throw new Error("Game not found. Please check the session ID.");
+      }
+
+      // Join the session
+      const joinResponse = await fetch(
+        `http://localhost:5001/api/sessions/${sessionId.trim()}/join`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ name: playerName.trim() }),
+        }
+      );
+
+      if (!joinResponse.ok) {
+        throw new Error("Failed to join the game.");
+      }
+
+      // Store player info in localStorage for the current session
+      localStorage.setItem("currentPlayer", playerName.trim());
+      localStorage.setItem("playerType", "O");
+
+      void navigate(`/session/${sessionId.trim()}`);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to join game");
+    } finally {
+      setIsJoining(false);
     }
-
-    const game = JSON.parse(gameData) as {
-      guest: string | null;
-      gameStarted: boolean;
-    };
-    if (game.guest) {
-      setError("This game is already full.");
-      return;
-    }
-
-    // Add guest player to the game
-    game.guest = playerName.trim();
-    game.gameStarted = true;
-    localStorage.setItem(
-      `game_${sessionId.toUpperCase()}`,
-      JSON.stringify(game)
-    );
-
-    void navigate(`/game/${sessionId.toUpperCase()}?player=guest`);
   };
 
   return (
@@ -48,7 +63,7 @@ const JoinGame = () => {
 
       <form
         onSubmit={(e) => {
-          handleJoinGame(e);
+          void handleJoinGame(e);
         }}
       >
         <div className="input-group">
@@ -60,18 +75,20 @@ const JoinGame = () => {
             onChange={(e) => setPlayerName(e.target.value)}
             placeholder="Enter your name"
             required
+            disabled={isJoining}
           />
         </div>
 
         <div className="input-group">
-          <label htmlFor="sessionId">Game ID</label>
+          <label htmlFor="sessionId">Session ID</label>
           <input
             id="sessionId"
             type="text"
             value={sessionId}
-            onChange={(e) => setSessionId(e.target.value.toUpperCase())}
-            placeholder="Enter game ID"
+            onChange={(e) => setSessionId(e.target.value)}
+            placeholder="Enter session ID"
             required
+            disabled={isJoining}
           />
         </div>
 
@@ -90,8 +107,8 @@ const JoinGame = () => {
           </div>
         )}
 
-        <button type="submit" className="button">
-          Join Game
+        <button type="submit" className="button" disabled={isJoining}>
+          {isJoining ? "Joining..." : "Join Game"}
         </button>
       </form>
 

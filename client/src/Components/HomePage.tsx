@@ -5,16 +5,17 @@ const HomePage = () => {
     <div className="page-container">
       <h2 className="page-title">Welcome to Tic-Tac-Toe Versus!</h2>
       <p style={{ marginBottom: "30px", color: "#666", lineHeight: 1.6 }}>
-        Challenge your friends to the classic game of tic-tac-toe. Create a game
-        and share the link, or join an existing game!
+        Create a session and share the link with friends to play tic-tac-toe
+        together! Anyone with the link can join and participate in real-time
+        gameplay.
       </p>
 
       <div>
         <Link to="/create" className="button">
-          🎮 Create New Game
+          🎮 Create Session
         </Link>
         <Link to="/join" className="button secondary">
-          🔗 Join Game
+          🔗 Join Session
         </Link>
       </div>
     </div>
