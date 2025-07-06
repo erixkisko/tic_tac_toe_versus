@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router";
+import { API_BASE_URL } from "../config";
 
 type SessionResponse = {
   sessionId: string;
@@ -20,7 +21,7 @@ const CreateGame = () => {
     setError("");
 
     try {
-      const response = await fetch("http://localhost:5001/api/sessions", {
+      const response = await fetch(`${API_BASE_URL}/api/sessions`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -36,7 +37,7 @@ const CreateGame = () => {
 
       // Join the session as the creator
       const joinResponse = await fetch(
-        `http://localhost:5001/api/sessions/${data.sessionId}/join`,
+        `${API_BASE_URL}/api/sessions/${data.sessionId}/join`,
         {
           method: "POST",
           headers: {

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
+import { API_BASE_URL } from "../config";
 
 type Participant = {
   name: string;
@@ -36,9 +37,7 @@ const SessionRoom = () => {
     if (!sessionId) return;
 
     try {
-      const response = await fetch(
-        `http://localhost:5001/api/sessions/${sessionId}`
-      );
+      const response = await fetch(`${API_BASE_URL}/api/sessions/${sessionId}`);
       if (!response.ok) {
         throw new Error("Session not found");
       }
@@ -81,7 +80,7 @@ const SessionRoom = () => {
 
     try {
       const response = await fetch(
-        `http://localhost:5001/api/sessions/${sessionId}/join`,
+        `${API_BASE_URL}/api/sessions/${sessionId}/join`,
         {
           method: "POST",
           headers: {
@@ -124,7 +123,7 @@ const SessionRoom = () => {
 
     try {
       const response = await fetch(
-        `http://localhost:5001/api/sessions/${sessionId}/move`,
+        `${API_BASE_URL}/api/sessions/${sessionId}/move`,
         {
           method: "POST",
           headers: {
@@ -154,7 +153,7 @@ const SessionRoom = () => {
 
     try {
       const response = await fetch(
-        `http://localhost:5001/api/sessions/${sessionId}/reset`,
+        `${API_BASE_URL}/api/sessions/${sessionId}/reset`,
         {
           method: "POST",
           headers: {

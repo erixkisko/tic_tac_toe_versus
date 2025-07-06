@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router";
+import { API_BASE_URL } from "../config";
 
 const JoinGame = () => {
   const [playerName, setPlayerName] = useState("");
@@ -22,7 +23,7 @@ const JoinGame = () => {
     try {
       // First check if session exists
       const checkResponse = await fetch(
-        `http://localhost:5001/api/sessions/${sessionId.trim()}`
+        `${API_BASE_URL}/api/sessions/${sessionId.trim()}`
       );
 
       if (!checkResponse.ok) {
@@ -31,7 +32,7 @@ const JoinGame = () => {
 
       // Join the session
       const joinResponse = await fetch(
-        `http://localhost:5001/api/sessions/${sessionId.trim()}/join`,
+        `${API_BASE_URL}/api/sessions/${sessionId.trim()}/join`,
         {
           method: "POST",
           headers: {
