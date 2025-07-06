@@ -226,7 +226,7 @@ const SessionRoom = () => {
           Join this tic-tac-toe session!
         </p>
 
-        <form onSubmit={handleJoinSession}>
+        <form onSubmit={(e) => void handleJoinSession(e)}>
           <div className="input-group">
             <label htmlFor="playerName">Your Name</label>
             <input
@@ -324,10 +324,11 @@ const SessionRoom = () => {
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "repeat(3, 1fr)",
+          gridTemplateColumns: "repeat(3, auto)",
           gap: "10px",
           maxWidth: "300px",
           margin: "0 auto 20px",
+          justifyContent: "center",
         }}
       >
         {session.gameState.board.map((row, rowIndex) =>
@@ -338,10 +339,13 @@ const SessionRoom = () => {
               disabled={
                 !isMyTurn() || cell !== "" || !!session.gameState.winner
               }
+              type="button"
               style={{
-                width: "80px",
-                height: "80px",
-                fontSize: "2rem",
+                width: "40px",
+                height: "40px",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
                 fontWeight: "bold",
                 border: "2px solid #333",
                 background: cell ? "#e9ecef" : "#fff",
